@@ -135,3 +135,83 @@ getUserData1(5)
 getUserData1(15)
     .then(data => console.log(data))
     .catch(error => console.error("Error:", error));
+
+
+
+//Part 2: The Implementation
+
+    async function getUserData2(id) {
+      try {
+          const centralDBPromise = central(id);
+          const userDataPromise = centralDBPromise.then(centralDB => dbs[centralDB](id));
+          const userAddressPromise = vault(id);
+  
+          const [centralDB, userData, userAddress] = await Promise.all([centralDBPromise, userDataPromise, userAddressPromise]);
+  
+          return {
+              id: id,
+              name: userAddress.name,
+              username: userData.username,
+              email: userAddress.email,
+              address: {
+                  street: userAddress.address.street,
+                  suite: userAddress.address.suite,
+                  city: userAddress.address.city,
+                  zipcode: userAddress.address.zipcode,
+                  geo: {
+                      lat: userAddress.address.geo.lat,
+                      lng: userAddress.address.geo.lng
+                  }
+              },
+              phone: userAddress.phone,
+              website: userData.website,
+              company: {
+                  name: userData.company.name,
+                  catchPhrase: userData.company.catchPhrase,
+                  bs: userData.company.bs
+              }
+          };
+      } catch (error) {
+          return Promise.reject(error);
+      }
+  }
+  
+
+  function getUserData(id) {
+    return central(id)
+        .then(centralDB => {
+            return Promise.all([
+                dbs[centralDB](id),
+                vault(id)
+            ]);
+        })
+        .then(([userData, userAddress]) => {
+            return {
+                id: id,
+                name: userAddress.name,
+                username: userData.username,
+                email: userAddress.email,
+                address: {
+                    street: userAddress.address.street,
+                    suite: userAddress.address.suite,
+                    city: userAddress.address.city,
+                    zipcode: userAddress.address.zipcode,
+                    geo: {
+                        lat: userAddress.address.geo.lat,
+                        lng: userAddress.address.geo.lng
+                    }
+                },
+                phone: userAddress.phone,
+                website: userData.website,
+                company: {
+                    name: userData.company.name,
+                    catchPhrase: userData.company.catchPhrase,
+                    bs: userData.company.bs
+                }
+            };
+        })
+        .catch(error => {
+            return Promise.reject(error);
+        });
+}
+
