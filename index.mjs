@@ -93,3 +93,45 @@ getUserData(1);
 //     bs: string
 //   }
 // }
+
+
+async function getUserData1 (id) {
+  try {
+      const centralDB = await central(id);
+      const userData = await dbs[centralDB](id);
+      const userAddress = await vault(id);
+
+      return {
+          id: id,
+          name: userAddress.name,
+          username: userData.username,
+          email: userAddress.email,
+          address: {
+              street: userAddress.address.street,
+              suite: userAddress.address.suite,
+              city: userAddress.address.city,
+              zipcode: userAddress.address.zipcode,
+              geo: {
+                  lat: userAddress.address.geo.lat,
+                  lng: userAddress.address.geo.lng
+              }
+          },
+          phone: userAddress.phone,
+          website: userData.website,
+          company: {
+              name: userData.company.name,
+              catchPhrase: userData.company.catchPhrase,
+              bs: userData.company.bs
+          }
+      };
+  } catch (error) {
+      return Promise.reject(error);
+  }
+}
+getUserData1(5)
+    .then(data => console.log(data))
+    .catch(error => console.error("Error:", error));
+
+getUserData1(15)
+    .then(data => console.log(data))
+    .catch(error => console.error("Error:", error));
